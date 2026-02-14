@@ -412,7 +412,7 @@ Item {
                 spacing: Style.marginM
 
                 NButton {
-                  text: "Pair with Device"
+                  text: pluginApi?.tr("panel.pair")
                   Layout.alignment: Qt.AlignHCenter
                   enabled: !KDEConnect.mainDevice.pairRequested
                   onClicked: {
@@ -485,7 +485,7 @@ Item {
             Item {}
 
             NText {
-              text: "No device running KDE Connect found"
+              text: pluginApi?.tr("panel.kdeconnect-error.no-devices")
               pointSize: Style.fontSizeL
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignCenter
@@ -530,7 +530,7 @@ Item {
             Item {}
 
             NText {
-              text: "kdeconnectd does not seem to be running!"
+              text: pluginApi?.tr("panel.kdeconnect-error.unavailable-title")
               pointSize: Style.fontSizeL
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignCenter
@@ -539,7 +539,7 @@ Item {
             }
 
             NText {
-              text: "Make sure you've installed the KDE Connect Application on your system and that it has started the kdeconnectd daemon"
+              text: pluginApi?.tr("panel.kdeconnect-error.unavailable-desc")
               pointSize: Style.fontSizeS
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignCenter
