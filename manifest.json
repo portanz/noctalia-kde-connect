@@ -2,7 +2,7 @@
   "id": "kde-connect",
   "name": "KDE Connect",
   "version": "1.0.0",
-  "minNoctaliaVersion": "4.1.2",
+  "minNoctaliaVersion": "4.4.0",
   "author": "WerWolv",
   "official": false,
   "license": "GPLv2",
