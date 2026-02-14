@@ -1,12 +1,5 @@
-# Hello World Plugin
+# Noctalia KDE Connect
 
-A demonstration plugin for Noctalia Shell that showcases bar widget, desktop widget, control center widget, panel, and custom settings functionalities.
+A Plugin integrating your mobile devices into a panel using KDEConnect
 
-## Features
-
-- **Bar Widget**: Displays "Hello World" with an icon in the bar
-- **Desktop Widget**: Draggable widget for the desktop
-- **Control Center Widget**: Quick access button in the control center
-- **Panel**: Shows detailed plugin information and IPC command examples
-- **Main**: Demonstrates custom IPC handlers
-- **Settings**: Plugin settings UI
+Requires `kdeconnectd` to be running which can be installed by setting up the official KDE Connect app
