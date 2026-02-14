@@ -153,7 +153,8 @@ Item {
         Layout.fillWidth: true
         Layout.fillHeight: true
         active: true
-        sourceComponent: (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired) ? deviceConnectedCard    :
+        sourceComponent: (!KDEConnect.daemonAvailable)                                     ? daemonNotRunningCard   :
+                         (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired) ? deviceConnectedCard    :
                          (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.paired) ? noDevicePairedCard     :
                          (KDEConnect.devices.length === 0)                                 ? noDevicesAvailableCard :
                          ""
@@ -487,7 +488,65 @@ Item {
               text: "No device running KDE Connect found"
               pointSize: Style.fontSizeL
               color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignCenter
+              horizontalAlignment: Text.AlignHCenter
+              verticalAlignment: Text.AlignVCenter
+              wrapMode: Text.WordWrap
+            }
+
+            Item {
+              Layout.fillHeight: true
+            }
+          }
+        }
+      }
+
+      Component {
+        id: daemonNotRunningCard
+
+        Rectangle {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Color.mSurfaceVariant
+          radius: Style.radiusM
+
+          ColumnLayout {
+            id: emptyState
+            anchors.fill: parent
+            anchors.margins: Style.marginM
+            spacing: Style.marginM
+
+            Item {
+              Layout.fillHeight: true
+            }
+
+            NIcon {
+              icon: "exclamation-circle"
+              pointSize: 48
+              color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
+            }
+
+            Item {}
+
+            NText {
+              text: "kdeconnectd does not seem to be running!"
+              pointSize: Style.fontSizeL
+              color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignCenter
+              horizontalAlignment: Text.AlignHCenter
+              verticalAlignment: Text.AlignVCenter
+            }
+
+            NText {
+              text: "Make sure you've installed the KDE Connect Application on your system and that it has started the kdeconnectd daemon"
+              pointSize: Style.fontSizeS
+              color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignCenter
+              horizontalAlignment: Text.AlignHCenter
+              verticalAlignment: Text.AlignVCenter
+              wrapMode: Text.WordWrap
+              Layout.fillWidth: true
             }
 
             Item {

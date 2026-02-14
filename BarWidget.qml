@@ -35,6 +35,9 @@ Item {
     id: pill
 
     function getIcon(device) {
+      if (!KDEConnect.daemonAvailable)
+        return "exclamation-circle"
+
       if (device === null || !device.paired)
         return "device-mobile-off"
 
@@ -52,7 +55,7 @@ Item {
     customTextColor: Color.resolveColorKeyOptional(root.textColorKey)
     icon: getIcon(KDEConnect.mainDevice)
     autoHide: false // Important to be false so we can hover as long as we want
-    text: KDEConnect.mainDevice === null || KDEConnect.mainDevice.battery === -1 ? "" : (KDEConnect.mainDevice.battery + "%")
+    text: !KDEConnect.daemonAvailable || KDEConnect.mainDevice === null || KDEConnect.mainDevice.battery === -1 ? "" : (KDEConnect.mainDevice.battery + "%")
 
     onClicked: {
       if (pluginApi) {

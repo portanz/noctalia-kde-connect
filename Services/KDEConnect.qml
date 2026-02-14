@@ -66,13 +66,15 @@ Singleton {
   // Check daemon
   Process {
     id: daemonCheckProc
-    command: ["qdbus", "org.kde.kdeconnect"]
+    command: ["qdbus"]
     stdout: StdioCollector {
       onStreamFinished: {
-        root.daemonAvailable = text.trim().length > 0;
-        Logger.i("KDEConnect", "Daemon available:", root.daemonAvailable);
+        root.daemonAvailable = text.trim().includes("org.kde.kdeconnect")
         if (root.daemonAvailable) {
           root.refreshDevices();
+        } else {
+          root.devices = []
+          root.mainDevice = null
         }
       }
     }
@@ -312,8 +314,8 @@ Singleton {
   // Periodic refresh timer
   Timer {
     interval: 5000
-    running: root.daemonAvailable
+    running: true
     repeat: true
-    onTriggered: root.refreshDevices()
+    onTriggered: root.checkDaemon()
   }
 }
