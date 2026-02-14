@@ -58,6 +58,11 @@ Singleton {
     proc.running = true;
   }
 
+  function requestPairing(deviceId: string): void {
+    const proc = requestPairingComponent.createObject(root, { deviceId: deviceId });
+    proc.running = true;
+  }
+
   // Check daemon
   Process {
     id: daemonCheckProc
@@ -104,6 +109,8 @@ Singleton {
         name: "",
         reachable: false,
         paired: false,
+        pairRequested: false,
+        verificationKey: "",
         charging: false,
         battery: -1,
         cellularNetworkType: "",
@@ -131,9 +138,31 @@ Singleton {
             loader.deviceData.reachable = text.trim() === "true";
 
             if (loader.deviceData.reachable)
-              pairedProc.running = true;
+              pairingRequestedProc.running = true;
             else
               finalize()
+          }
+        }
+      }
+
+      property Process pairingRequestedProc: Process {
+        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isPairRequested"]
+        stdout: StdioCollector {
+          onStreamFinished: {
+            loader.deviceData.pairRequested = text.trim() === "true";
+
+            verificationKeyProc.running = true;
+          }
+        }
+      }
+
+      property Process verificationKeyProc: Process {
+        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.verificationKey"]
+        stdout: StdioCollector {
+          onStreamFinished: {
+            loader.deviceData.verificationKey = text.trim();
+
+            pairedProc.running = true;
           }
         }
       }
@@ -232,6 +261,19 @@ Singleton {
       id: proc
       property string deviceId: ""
       command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId + "/findmyphone", "org.kde.kdeconnect.device.findmyphone.ring"]
+      stdout: StdioCollector {
+        onStreamFinished: proc.destroy()
+      }
+    }
+  }
+
+  // Request Pairing Component
+  Component {
+    id: requestPairingComponent
+    Process {
+      id: proc
+      property string deviceId: ""
+      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.requestPairing"]
       stdout: StdioCollector {
         onStreamFinished: proc.destroy()
       }

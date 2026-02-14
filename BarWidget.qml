@@ -35,13 +35,13 @@ Item {
     id: pill
 
     function getIcon(device) {
-      if (device === null)
+      if (device === null || !device.paired)
         return "device-mobile-off"
 
       if (device.charging)
         return "device-mobile-charging"
-
-      return "device-mobile"
+      else
+        return "device-mobile"
     }
 
     screen: root.screen
@@ -50,7 +50,7 @@ Item {
     customTextColor: Color.resolveColorKeyOptional(root.textColorKey)
     icon: getIcon(KDEConnect.mainDevice)
     autoHide: false // Important to be false so we can hover as long as we want
-    text: KDEConnect.mainDevice === null ? "" : (KDEConnect.mainDevice.battery + "%")
+    text: KDEConnect.mainDevice === null || KDEConnect.mainDevice.battery === -1 ? "" : (KDEConnect.mainDevice.battery + "%")
 
     onClicked: {
       if (pluginApi) {

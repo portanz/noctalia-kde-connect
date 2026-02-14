@@ -48,39 +48,62 @@ Item {
 
       function getCellularTypeIcon(type) {
         switch (type) {
-          case "5G": return "signal-5g"
-          case "LTE": return "signal-4g"
-          case "HSPA": return "signal-h"
-          case "UMTS": return "signal-3g"
-          case "EDGE": return "signal-e"
-          case "GPRS": return "signal-g"
-          case "GSM": return "signal-2g"
-          case "CDMA": return "signal-3g"
-          case "CDMA2000": return "signal-3g"
-          case "iDEN": return "signal-2g"
-          default: return "wave-square"
+          case "5G":
+            return "signal-5g"
+          case "LTE":
+            return "signal-4g"
+          case "HSPA":
+            return "signal-h"
+          case "UMTS":
+            return "signal-3g"
+          case "EDGE":
+            return "signal-e"
+          case "GPRS":
+            return "signal-g"
+          case "GSM":
+            return "signal-2g"
+          case "CDMA":
+            return "signal-3g"
+          case "CDMA2000":
+            return "signal-3g"
+          case "iDEN":
+            return "signal-2g"
+          default:
+            return "wave-square"
         }
       }
 
       function getCellularStrengthIcon(strength) {
         switch (strength) {
-          case 0: return "antenna-bars-1"
-          case 1: return "antenna-bars-2"
-          case 2: return "antenna-bars-3"
-          case 3: return "antenna-bars-4"
-          case 4: return "antenna-bars-5"
-          default: return "antenna-bars-off"
+          case 0:
+            return "antenna-bars-1"
+          case 1:
+            return "antenna-bars-2"
+          case 2:
+            return "antenna-bars-3"
+          case 3:
+            return "antenna-bars-4"
+          case 4:
+            return "antenna-bars-5"
+          default:
+            return "antenna-bars-off"
         }
       }
 
       function getSignalStrengthText(strength) {
         switch (strength) {
-          case 0: return "Very Weak"
-          case 1: return "Weak"
-          case 2: return "Fair"
-          case 3: return "Good"
-          case 4: return "Excellent"
-          default: return "Unknown"
+          case 0:
+            return "Very Weak"
+          case 1:
+            return "Weak"
+          case 2:
+            return "Fair"
+          case 3:
+            return "Good"
+          case 4:
+            return "Excellent"
+          default:
+            return "Unknown"
         }
       }
 
@@ -90,7 +113,6 @@ Item {
       }
       spacing: Style.marginL
 
-      // HEADER
       NBox {
         Layout.fillWidth: true
         implicitHeight: headerRow.implicitHeight + (Style.marginXL)
@@ -126,183 +148,317 @@ Item {
         }
       }
 
-      // DEVICE CARD
-      Rectangle {
+      Loader {
         Layout.fillWidth: true
         Layout.fillHeight: true
-        color: Color.mSurfaceVariant
-        radius: Style.radiusM
+        active: true
+        sourceComponent: (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired) ? deviceConnectedCard    :
+                         (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.paired) ? noDevicePairedCard     :
+                         (KDEConnect.devices.length === 0)                                 ? noDevicesAvailableCard :
+                         ""
+      }
 
-        ColumnLayout {
-          anchors {
-            fill: parent
-            margins: Style.marginL
-          }
-          spacing: Style.marginL
+      Component {
+        id: deviceConnectedCard
 
-          // Device Name
+        Rectangle {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Color.mSurfaceVariant
+          radius: Style.radiusM
 
-          RowLayout {
-            NText {
-              text: KDEConnect.mainDevice === null ? "No device connected" : KDEConnect.mainDevice.name
-              pointSize: Style.fontSizeXXL
-              font.weight: Style.fontWeightBold
-              color: Color.mOnSurface
-              Layout.fillWidth: true
+          ColumnLayout {
+            anchors {
+              fill: parent
+              margins: Style.marginL
             }
+            spacing: Style.marginL
 
-            NFilePicker {
-              id: shareFilePicker
-              title: "Pick file to send"
-              selectionMode: "files"
-              initialPath: Quickshell.env("HOME")
-              nameFilters: ["*"]
-              onAccepted: paths => {
-                if (paths.length > 0) {
-                  for (const path of paths) {
-                    KDEConnect.shareFile(KDEConnect.mainDevice.id, path)
+            RowLayout {
+              NText {
+                text: KDEConnect.mainDevice.name
+                pointSize: Style.fontSizeXXL
+                font.weight: Style.fontWeightBold
+                color: Color.mOnSurface
+                Layout.fillWidth: true
+              }
+
+              NFilePicker {
+                id: shareFilePicker
+                title: "Pick file to send"
+                selectionMode: "files"
+                initialPath: Quickshell.env("HOME")
+                nameFilters: ["*"]
+                onAccepted: paths => {
+                  if (paths.length > 0) {
+                    for (const path of paths) {
+                      KDEConnect.shareFile(KDEConnect.mainDevice.id, path)
+                    }
                   }
+                }
+              }
+
+              NIconButton {
+                icon: "device-mobile-share"
+                tooltipText: "Send File"
+                onClicked: {
+                  shareFilePicker.open()
+                }
+              }
+
+              NIconButton {
+                icon: "radar"
+                tooltipText: "Find my Device"
+                onClicked: {
+                  KDEConnect.triggerFindMyPhone(KDEConnect.mainDevice.id)
                 }
               }
             }
 
-            NIconButton {
-              icon: "device-mobile-share"
-              tooltipText: "Send File"
-              onClicked: {
-                shareFilePicker.open()
-              }
+            // Device Status
+            Loader {
+              Layout.fillWidth: true
+              Layout.fillHeight: true
+              active: KDEConnect.mainDevice !== null
+              sourceComponent: deviceStatsWithPhone
             }
 
-            NIconButton {
-              icon: "radar"
-              tooltipText: "Find my Device"
-              onClicked: {
-                KDEConnect.triggerFindMyPhone(KDEConnect.mainDevice.id)
+          }
+
+          Component {
+            id: deviceStatsWithPhone
+
+            RowLayout {
+
+              Rectangle {
+                width: 100
+                color: "transparent"
+                Layout.fillHeight: true
+                Layout.leftMargin: Style.marginL
+
+                PhoneDisplay {
+                  Layout.alignment: Qt.AlignTop
+                  backgroundImage: ""
+                }
+              }
+
+              // Stats Grid
+              GridLayout {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignTop
+                columns: 1
+                rowSpacing: Style.marginL
+
+                // Battery Section
+                RowLayout {
+                  spacing: Style.marginM
+
+                  NIcon {
+                    icon: deviceData.getBatteryIcon(KDEConnect.mainDevice.battery, KDEConnect.mainDevice.charging)
+                    pointSize: Style.fontSizeXXXL
+                    applyUiScale: true
+                    color: KDEConnect.mainDevice.charging ? Color.mPrimary : Color.mOnSurface
+                  }
+
+                  ColumnLayout {
+                    spacing: 2
+
+                    NText {
+                      text: "Battery"
+                      pointSize: Style.fontSizeS
+                      color: Color.mOnSurfaceVariant
+                    }
+
+                    NText {
+                      text: KDEConnect.mainDevice.battery + "%"
+                      pointSize: Style.fontSizeL
+                      font.weight: Style.fontWeightMedium
+                      color: Color.mOnSurface
+                    }
+                  }
+                }
+
+                // Network Type Section
+                RowLayout {
+                  spacing: Style.marginM
+
+                  NIcon {
+                    icon: deviceData.getCellularTypeIcon(KDEConnect.mainDevice.cellularNetworkType)
+                    pointSize: Style.fontSizeXXXL
+                    applyUiScale: true
+                    color: Color.mOnSurface
+                  }
+
+                  ColumnLayout {
+                    spacing: 2
+
+                    NText {
+                      text: "Network"
+                      pointSize: Style.fontSizeS
+                      color: Color.mOnSurfaceVariant
+                    }
+
+                    NText {
+                      text: KDEConnect.mainDevice.cellularNetworkType
+                      pointSize: Style.fontSizeL
+                      font.weight: Style.fontWeightMedium
+                      color: Color.mOnSurface
+                    }
+                  }
+                }
+
+                // Signal Strength Section
+                RowLayout {
+                  spacing: Style.marginM
+
+                  NIcon {
+                    icon: deviceData.getCellularStrengthIcon(KDEConnect.mainDevice.cellularNetworkStrength)
+                    pointSize: Style.fontSizeXXXL
+                    applyUiScale: true
+                    color: Color.mOnSurface
+                  }
+
+                  ColumnLayout {
+                    spacing: 2
+
+                    NText {
+                      text: "Signal Strength"
+                      pointSize: Style.fontSizeS
+                      color: Color.mOnSurfaceVariant
+                    }
+
+                    NText {
+                      text: deviceData.getSignalStrengthText(KDEConnect.mainDevice.cellularNetworkStrength)
+                      pointSize: Style.fontSizeL
+                      font.weight: Style.fontWeightMedium
+                      color: Color.mOnSurface
+                    }
+                  }
+                }
               }
             }
           }
-
-          // Device Status
-          Loader {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            active: KDEConnect.mainDevice !== null
-            sourceComponent: deviceStatsWithPhone
-          }
-
         }
+      }
 
-        Component {
-          id: deviceStatsWithPhone
+      Component {
+        id: noDevicePairedCard
 
-          RowLayout {
+        Rectangle {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Color.mSurfaceVariant
+          radius: Style.radiusM
+
+          ColumnLayout {
+            anchors {
+              fill: parent
+              margins: Style.marginL
+            }
+            spacing: Style.marginL
+
+            RowLayout {
+              NText {
+                text: KDEConnect.mainDevice.name
+                pointSize: Style.fontSizeXXL
+                font.weight: Style.fontWeightBold
+                color: Color.mOnSurface
+                Layout.fillWidth: true
+              }
+            }
 
             Rectangle {
-              width: 100
-              color: "transparent"
+              Layout.fillWidth: true
               Layout.fillHeight: true
-              Layout.leftMargin: Style.marginL
+              color: "transparent"
 
-              PhoneDisplay {
-                Layout.alignment: Qt.AlignTop
-                backgroundImage: ""
+              ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: Style.marginM
+                spacing: Style.marginM
+
+                NButton {
+                  text: "Pair with Device"
+                  Layout.alignment: Qt.AlignHCenter
+                  enabled: !KDEConnect.mainDevice.pairRequested
+                  onClicked: {
+                    KDEConnect.requestPairing(KDEConnect.mainDevice.id)
+                    KDEConnect.mainDevice.pairRequested = true
+                    KDEConnect.refreshDevices()
+                  }
+                }
+
+                RowLayout {
+                  Layout.alignment: Qt.AlignHCenter
+                  spacing: Style.marginM
+
+                  NIcon {
+                    icon: "key"
+                    pointSize: Style.fontSizeXL
+                    color: Color.mOnSurface
+                    Layout.alignment: Qt.AlignHCenter
+                    opacity: KDEConnect.mainDevice.pairRequested ? 1.0 : 0.0
+                  }
+
+                  NText {
+                    text: KDEConnect.mainDevice.verificationKey
+                    Layout.alignment: Qt.AlignHCenter
+                    pointSize: Style.fontSizeL
+                    font.weight: Style.fontWeightBold
+                    color: Color.mOnSurface
+                    opacity: KDEConnect.mainDevice.pairRequested ? 1.0 : 0.0
+                  }
+                }
+
+                NBusyIndicator {
+                  Layout.alignment: Qt.AlignHCenter
+                  opacity: KDEConnect.mainDevice.pairRequested ? 1.0 : 0.0
+                  size: Style.baseWidgetSize * 0.5
+                  running: KDEConnect.mainDevice.pairRequested
+                }
               }
             }
+          }
+        }
+      }
 
-            // Stats Grid
-            GridLayout {
-              Layout.fillWidth: true
-              Layout.alignment: Qt.AlignTop
-              columns: 1
-              rowSpacing: Style.marginL
+      Component {
+        id: noDevicesAvailableCard
 
-              // Battery Section
-              RowLayout {
-                spacing: Style.marginM
+        Rectangle {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Color.mSurfaceVariant
+          radius: Style.radiusM
 
-                NIcon {
-                  icon: deviceData.getBatteryIcon(KDEConnect.mainDevice.battery, KDEConnect.mainDevice.charging)
-                  pointSize: Style.fontSizeXXL
-                  applyUiScale: true
-                  color: KDEConnect.mainDevice.charging ? Color.mPrimary : Color.mOnSurface
-                }
+          ColumnLayout {
+            id: emptyState
+            anchors.fill: parent
+            anchors.margins: Style.marginM
+            spacing: Style.marginM
 
-                ColumnLayout {
-                  spacing: 2
+            Item {
+              Layout.fillHeight: true
+            }
 
-                  NText {
-                    text: "Battery"
-                    pointSize: Style.fontSizeS
-                    color: Color.mOnSurfaceVariant
-                  }
+            NIcon {
+              icon: "device-mobile-off"
+              pointSize: 48
+              color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignHCenter
+            }
 
-                  NText {
-                    text: KDEConnect.mainDevice.battery + "%"
-                    pointSize: Style.fontSizeL
-                    font.weight: Style.fontWeightMedium
-                    color: Color.mOnSurface
-                  }
-                }
-              }
+            Item {}
 
-              // Network Type Section
-              RowLayout {
-                spacing: Style.marginM
+            NText {
+              text: "No device running KDE Connect found"
+              pointSize: Style.fontSizeL
+              color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignHCenter
+            }
 
-                NIcon {
-                  icon: deviceData.getCellularTypeIcon(KDEConnect.mainDevice.cellularNetworkType)
-                  pointSize: Style.fontSizeXXL
-                  applyUiScale: true
-                  color: Color.mOnSurface
-                }
-
-                ColumnLayout {
-                  spacing: 2
-
-                  NText {
-                    text: "Network"
-                    pointSize: Style.fontSizeS
-                    color: Color.mOnSurfaceVariant
-                  }
-
-                  NText {
-                    text: KDEConnect.mainDevice.cellularNetworkType
-                    pointSize: Style.fontSizeL
-                    font.weight: Style.fontWeightMedium
-                    color: Color.mOnSurface
-                  }
-                }
-              }
-
-              // Signal Strength Section
-              RowLayout {
-                spacing: Style.marginM
-
-                NIcon {
-                  icon: deviceData.getCellularStrengthIcon(KDEConnect.mainDevice.cellularNetworkStrength)
-                  pointSize: Style.fontSizeXXL
-                  applyUiScale: true
-                  color: Color.mOnSurface
-                }
-
-                ColumnLayout {
-                  spacing: 2
-
-                  NText {
-                    text: "Signal Strength"
-                    pointSize: Style.fontSizeS
-                    color: Color.mOnSurfaceVariant
-                  }
-
-                  NText {
-                    text: deviceData.getSignalStrengthText(KDEConnect.mainDevice.cellularNetworkStrength)
-                    pointSize: Style.fontSizeL
-                    font.weight: Style.fontWeightMedium
-                    color: Color.mOnSurface
-                  }
-                }
-              }
+            Item {
+              Layout.fillHeight: true
             }
           }
         }
