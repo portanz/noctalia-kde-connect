@@ -93,17 +93,17 @@ Item {
       function getSignalStrengthText(strength) {
         switch (strength) {
           case 0:
-            return "Very Weak"
+            return pluginApi?.tr("panel.signal.very-weak")
           case 1:
-            return "Weak"
+            return pluginApi?.tr("panel.signal.weak")
           case 2:
-            return "Fair"
+            return pluginApi?.tr("panel.signal.fair")
           case 3:
-            return "Good"
+            return pluginApi?.tr("panel.signal.good")
           case 4:
-            return "Excellent"
+            return pluginApi?.tr("panel.signal.excellent")
           default:
-            return "Unknown"
+            return pluginApi?.tr("panel.signal.unknown")
         }
       }
 
@@ -130,7 +130,7 @@ Item {
           }
 
           NText {
-            text: "Connected Devices"
+            text: pluginApi?.tr("panel.title")
             pointSize: Style.fontSizeL
             font.weight: Style.fontWeightBold
             color: Color.mOnSurface
@@ -142,7 +142,8 @@ Item {
             tooltipText: I18n.tr("common.close")
             baseSize: Style.baseWidgetSize * 0.8
             onClicked: {
-              root.close();
+              if (pluginApi)
+                pluginApi.withCurrentScreen(s => pluginApi.closePanel(s));
             }
           }
         }
@@ -185,7 +186,7 @@ Item {
 
               NFilePicker {
                 id: shareFilePicker
-                title: "Pick file to send"
+                title: pluginApi?.tr("panel.send-file-picker")
                 selectionMode: "files"
                 initialPath: Quickshell.env("HOME")
                 nameFilters: ["*"]
@@ -200,7 +201,7 @@ Item {
 
               NIconButton {
                 icon: "device-mobile-share"
-                tooltipText: "Send File"
+                tooltipText: pluginApi?.tr("panel.send-file")
                 onClicked: {
                   shareFilePicker.open()
                 }
@@ -208,7 +209,7 @@ Item {
 
               NIconButton {
                 icon: "radar"
-                tooltipText: "Find my Device"
+                tooltipText: pluginApi?.tr("panel.find-device")
                 onClicked: {
                   KDEConnect.triggerFindMyPhone(KDEConnect.mainDevice.id)
                 }
@@ -264,7 +265,7 @@ Item {
                     spacing: 2
 
                     NText {
-                      text: "Battery"
+                      text: pluginApi?.tr("panel.card.battery")
                       pointSize: Style.fontSizeS
                       color: Color.mOnSurfaceVariant
                     }
@@ -293,7 +294,7 @@ Item {
                     spacing: 2
 
                     NText {
-                      text: "Network"
+                      text: pluginApi?.tr("panel.card.network")
                       pointSize: Style.fontSizeS
                       color: Color.mOnSurfaceVariant
                     }
@@ -322,7 +323,7 @@ Item {
                     spacing: 2
 
                     NText {
-                      text: "Signal Strength"
+                      text: pluginApi?.tr("panel.card.signal-strength")
                       pointSize: Style.fontSizeS
                       color: Color.mOnSurfaceVariant
                     }
@@ -353,7 +354,7 @@ Item {
                     spacing: 2
 
                     NText {
-                      text: "Notifications"
+                      text: pluginApi?.tr("panel.card.notifications")
                       pointSize: Style.fontSizeS
                       color: Color.mOnSurfaceVariant
                     }

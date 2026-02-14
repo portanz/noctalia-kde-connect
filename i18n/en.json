@@ -1,3 +1,22 @@
 {
-
+  "panel": {
+    "title": "Connected Devices",
+    "signal": {
+      "very-weak": "Very Weak",
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "excellent": "Excellent",
+      "unknown": "Unknown"
+    },
+    "card": {
+      "battery": "Battery",
+      "network": "Network",
+      "signal-strength": "Signal Strength",
+      "notifications": "Notifications"
+    },
+    "send-file-picker": "Pick file to send to device",
+    "send-file": "Send File",
+    "find-device": "Find my Device"
+  }
 }
