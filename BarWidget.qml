@@ -1,0 +1,61 @@
+import QtQuick
+import QtQuick.Controls
+import Quickshell
+import qs.Commons
+import qs.Modules.Bar.Extras
+import qs.Modules.Panels.Settings
+import qs.Services.Hardware
+import qs.Services.UI
+import qs.Widgets
+import "./Services"
+
+Item {
+  id: root
+
+  property var pluginApi: null
+
+  property ShellScreen screen
+
+  // Widget properties passed from Bar.qml for per-instance settings
+  property string widgetId: ""
+  property string section: ""
+  property int sectionWidgetIndex: -1
+  property int sectionWidgetsCount: 0
+
+  property var widgetMetadata: BarWidgetRegistry.widgetMetadata[widgetId]
+  // Explicit screenName property ensures reactive binding when screen changes
+  readonly property string screenName: screen ? screen.name : ""
+
+  implicitWidth: pill.width
+  implicitHeight: pill.height
+
+  visible: true
+
+  BarPill {
+    id: pill
+
+    function getIcon(device) {
+      if (device === null)
+        return "device-mobile-off"
+
+      if (device.charging)
+        return "device-mobile-charging"
+
+      return "device-mobile"
+    }
+
+    screen: root.screen
+    oppositeDirection: BarService.getPillDirection(root)
+    customIconColor: Color.resolveColorKeyOptional(root.iconColorKey)
+    customTextColor: Color.resolveColorKeyOptional(root.textColorKey)
+    icon: getIcon(KDEConnect.mainDevice)
+    autoHide: false // Important to be false so we can hover as long as we want
+    text: KDEConnect.mainDevice === null ? "" : (KDEConnect.mainDevice.battery + "%")
+
+    onClicked: {
+      if (pluginApi) {
+        pluginApi.openPanel(root.screen, this);
+      }
+    }
+  }
+}
