@@ -24,7 +24,7 @@ Item {
 
   Component.onCompleted: {
     if (pluginApi) {
-      Logger.i("HelloWorld", "Panel initialized");
+      Logger.i("KDEConnect", "Panel initialized");
     }
   }
 
