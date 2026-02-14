@@ -4,6 +4,7 @@ import qs.Commons
 import qs.Services.UI
 import qs.Widgets
 import "./Services"
+import Quickshell
 
 // Panel Component
 Item {
@@ -148,6 +149,29 @@ Item {
               font.weight: Style.fontWeightBold
               color: Color.mOnSurface
               Layout.fillWidth: true
+            }
+
+            NFilePicker {
+              id: shareFilePicker
+              title: "Pick file to send"
+              selectionMode: "files"
+              initialPath: Quickshell.env("HOME")
+              nameFilters: ["*"]
+              onAccepted: paths => {
+                if (paths.length > 0) {
+                  for (const path of paths) {
+                    KDEConnect.shareFile(KDEConnect.mainDevice.id, path)
+                  }
+                }
+              }
+            }
+
+            NIconButton {
+              icon: "device-mobile-share"
+              tooltipText: "Send File"
+              onClicked: {
+                shareFilePicker.open()
+              }
             }
 
             NIconButton {

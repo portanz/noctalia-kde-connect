@@ -245,9 +245,11 @@ Singleton {
       id: proc
       property string deviceId: ""
       property string filePath: ""
-      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.shareUrl", "file://" + filePath]
+      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId + "/share", "org.kde.kdeconnect.device.share.shareUrl", "file://" + filePath]
       stdout: StdioCollector {
-        onStreamFinished: proc.destroy()
+        onStreamFinished: {
+          proc.destroy()
+        }
       }
     }
   }
