@@ -335,6 +335,38 @@ Item {
                     }
                   }
                 }
+
+                // Notifications Section
+                RowLayout {
+                  spacing: Style.marginM
+
+                  NIcon {
+                    icon: "message"
+                    pointSize: Style.fontSizeXXL
+                    applyUiScale: true
+                    color: Color.mPrimary
+                  }
+
+                  Item {}
+
+                  ColumnLayout {
+                    spacing: 2
+
+                    NText {
+                      text: "Notifications"
+                      pointSize: Style.fontSizeS
+                      color: Color.mOnSurfaceVariant
+                    }
+
+                    NText {
+                      text: KDEConnect.mainDevice.notificationIds.length
+                      pointSize: Style.fontSizeL
+                      font.weight: Style.fontWeightMedium
+                      color: Color.mOnSurface
+                    }
+                  }
+                }
+
               }
             }
           }

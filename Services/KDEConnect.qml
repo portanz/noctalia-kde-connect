@@ -114,7 +114,8 @@ Singleton {
         charging: false,
         battery: -1,
         cellularNetworkType: "",
-        cellularNetworkStrength: -1
+        cellularNetworkStrength: -1,
+        notificationIds: []
       })
 
       function start() {
@@ -174,9 +175,21 @@ Singleton {
             loader.deviceData.paired = text.trim() === "true";
 
             if (loader.deviceData.paired)
-              cellularNetworkTypeProc.running = true;
+              activeNotificationsProc.running = true;
             else
               finalize()
+          }
+        }
+      }
+
+      property Process activeNotificationsProc: Process {
+        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/notifications", "org.kde.kdeconnect.device.notifications.activeNotifications"]
+        stdout: StdioCollector {
+          onStreamFinished: {
+            let ids = text.trim().split("\n")
+            loader.deviceData.notificationIds = ids.length === 1 && ids[0] === "" ? [] : ids
+
+            cellularNetworkTypeProc.running = true;
           }
         }
       }

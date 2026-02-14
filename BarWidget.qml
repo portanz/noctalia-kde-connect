@@ -38,7 +38,9 @@ Item {
       if (device === null || !device.paired)
         return "device-mobile-off"
 
-      if (device.charging)
+      if (device.notificationIds.length > 0)
+        return "device-mobile-message"
+      else if (device.charging)
         return "device-mobile-charging"
       else
         return "device-mobile"
