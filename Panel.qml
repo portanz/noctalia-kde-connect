@@ -140,12 +140,15 @@ Item {
           }
 
           NIconButton {
+            readonly property bool multipleDevices: KDEConnect.devices.length > 1
             icon: "swipe"
-            tooltipText: pluginApi?.tr("panel.other-devices")
+            tooltipText: multipleDevices ? pluginApi?.tr("panel.other-devices") : ""
             baseSize: Style.baseWidgetSize * 0.8
             onClicked: {
               deviceSwitcherOpen = !deviceSwitcherOpen
             }
+            enabled: KDEConnect.daemonAvailable && multipleDevices
+            opacity: multipleDevices ? 1.0 : 0.0
           }
 
           Item {
@@ -168,11 +171,12 @@ Item {
         Layout.fillWidth: true
         Layout.fillHeight: true
         active: true
-        sourceComponent: (!KDEConnect.daemonAvailable)                                     ? daemonNotRunningCard   :
-                         (deviceSwitcherOpen)                                              ? deviceSwitcherCard     :
-                         (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired) ? deviceConnectedCard    :
-                         (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.paired) ? noDevicePairedCard     :
-                         (KDEConnect.devices.length === 0)                                 ? noDevicesAvailableCard :
+        sourceComponent: (!KDEConnect.daemonAvailable)                                        ? daemonNotRunningCard   :
+                         (deviceSwitcherOpen)                                                 ? deviceSwitcherCard     :
+                         (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.reachable) ? deviceNotReachableCard :
+                         (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired)    ? deviceConnectedCard    :
+                         (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.paired)    ? noDevicePairedCard     :
+                         (KDEConnect.devices.length === 0)                                    ? noDevicesAvailableCard :
                          ""
       }
 
@@ -508,6 +512,63 @@ Item {
               horizontalAlignment: Text.AlignHCenter
               verticalAlignment: Text.AlignVCenter
               wrapMode: Text.WordWrap
+            }
+
+            Item {
+              Layout.fillHeight: true
+            }
+          }
+        }
+      }
+
+      Component {
+        id: deviceNotReachableCard
+
+        Rectangle {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Color.mSurfaceVariant
+          radius: Style.radiusM
+
+          ColumnLayout {
+            id: emptyState
+            anchors.fill: parent
+            anchors.margins: Style.marginM
+            spacing: Style.marginM
+
+            Item {
+              Layout.fillHeight: true
+            }
+
+            NIcon {
+              icon: "device-mobile-off"
+              pointSize: 48
+              color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignHCenter
+            }
+
+            Item {}
+
+            NText {
+              text: pluginApi?.tr("panel.kdeconnect-error.device-unavailable")
+              pointSize: Style.fontSizeL
+              color: Color.mOnSurfaceVariant
+              Layout.alignment: Qt.AlignCenter
+              horizontalAlignment: Text.AlignHCenter
+              verticalAlignment: Text.AlignVCenter
+              wrapMode: Text.WordWrap
+            }
+
+            Item {
+
+            }
+
+            NButton {
+              text: pluginApi?.tr("panel.unpair")
+              Layout.alignment: Qt.AlignHCenter
+              onClicked: {
+                KDEConnect.unpairDevice(KDEConnect.mainDevice.id)
+              }
             }
 
             Item {

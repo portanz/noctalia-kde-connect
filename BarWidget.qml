@@ -38,7 +38,7 @@ Item {
       if (!KDEConnect.daemonAvailable)
         return "exclamation-circle"
 
-      if (device === null || !device.paired)
+      if (device === null || !device.reachable)
         return "device-mobile-off"
 
       if (device.notificationIds.length > 0)

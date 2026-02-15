@@ -73,6 +73,11 @@ Singleton {
     proc.running = true;
   }
 
+  function unpairDevice(deviceId: string): void {
+    const proc = unpairingComponent.createObject(root, { deviceId: deviceId });
+    proc.running = true;
+  }
+
   // Check daemon
   Process {
     id: daemonCheckProc
@@ -139,6 +144,7 @@ Singleton {
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.name = text.trim();
+
             reachableProc.running = true;
           }
         }
@@ -150,10 +156,7 @@ Singleton {
           onStreamFinished: {
             loader.deviceData.reachable = text.trim() === "true";
 
-            if (loader.deviceData.reachable)
-              pairingRequestedProc.running = true;
-            else
-              finalize()
+            pairingRequestedProc.running = true;
           }
         }
       }
@@ -303,6 +306,22 @@ Singleton {
       command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.requestPairing"]
       stdout: StdioCollector {
         onStreamFinished: proc.destroy()
+      }
+    }
+  }
+
+  // Unpairing Component
+  Component {
+    id: unpairingComponent
+    Process {
+      id: proc
+      property string deviceId: ""
+      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.unpair"]
+      stdout: StdioCollector {
+        onStreamFinished: {
+          KDEConnect.refreshDevices()
+          proc.destroy()
+        }
       }
     }
   }

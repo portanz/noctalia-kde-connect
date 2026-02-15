@@ -20,10 +20,12 @@
     "send-file": "Send File",
     "find-device": "Find my Device",
     "pair": "Pair with Device",
+    "unpair": "Unpair Device",
     "kdeconnect-error": {
       "no-devices": "No device running KDE Connect found",
       "unavailable-title": "kdeconnectd does not seem to be running!",
-      "unavailable-desc": "Make sure you've installed the KDE Connect Application on your system and that it has started the kdeconnectd daemon"
+      "unavailable-desc": "Make sure you've installed the KDE Connect Application on your system and that it has started the kdeconnectd daemon",
+      "device-unavailable": "Device is currently unavailable"
     }
   },
   "bar": {
