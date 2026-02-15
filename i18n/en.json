@@ -24,5 +24,8 @@
       "unavailable-title": "kdeconnectd does not seem to be running!",
       "unavailable-desc": "Make sure you've installed the KDE Connect Application on your system and that it has started the kdeconnectd daemon"
     }
+  },
+  "bar": {
+    "tooltip": "Connected Devices"
   }
 }

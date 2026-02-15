@@ -56,7 +56,7 @@ Item {
     icon: getIcon(KDEConnect.mainDevice)
     autoHide: false // Important to be false so we can hover as long as we want
     text: !KDEConnect.daemonAvailable || KDEConnect.mainDevice === null || KDEConnect.mainDevice.battery === -1 ? "" : (KDEConnect.mainDevice.battery + "%")
-
+    tooltipText: pluginApi?.tr("bar.tooltip")
     onClicked: {
       if (pluginApi) {
         pluginApi.openPanel(root.screen, this);
