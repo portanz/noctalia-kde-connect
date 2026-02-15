@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import qs.Commons
 import qs.Services.UI
@@ -20,6 +21,8 @@ Item {
   property real contentPreferredHeight: 360 * Style.uiScaleRatio
 
   readonly property bool allowAttach: true
+
+  property bool deviceSwitcherOpen: false
 
   anchors.fill: parent
 
@@ -134,6 +137,18 @@ Item {
             pointSize: Style.fontSizeL
             font.weight: Style.fontWeightBold
             color: Color.mOnSurface
+          }
+
+          NIconButton {
+            icon: "swipe"
+            tooltipText: pluginApi?.tr("panel.other-devices")
+            baseSize: Style.baseWidgetSize * 0.8
+            onClicked: {
+              deviceSwitcherOpen = !deviceSwitcherOpen
+            }
+          }
+
+          Item {
             Layout.fillWidth: true
           }
 
@@ -154,6 +169,7 @@ Item {
         Layout.fillHeight: true
         active: true
         sourceComponent: (!KDEConnect.daemonAvailable)                                     ? daemonNotRunningCard   :
+                         (deviceSwitcherOpen)                                              ? deviceSwitcherCard     :
                          (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired) ? deviceConnectedCard    :
                          (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.paired) ? noDevicePairedCard     :
                          (KDEConnect.devices.length === 0)                                 ? noDevicesAvailableCard :
@@ -551,6 +567,56 @@ Item {
 
             Item {
               Layout.fillHeight: true
+            }
+          }
+        }
+      }
+
+      Component {
+        id: deviceSwitcherCard
+
+        Rectangle {
+          Layout.fillWidth: true
+          Layout.fillHeight: true
+          color: Color.mSurfaceVariant
+          radius: Style.radiusM
+
+          NScrollView{
+            horizontalPolicy: ScrollBar.AlwaysOff
+            verticalPolicy: ScrollBar.AsNeeded
+            contentWidth: parent.width
+            reserveScrollbarSpace: false
+            gradientColor: Color.mSurface
+
+            ColumnLayout {
+              id: emptyState
+              anchors.fill: parent
+              anchors.margins: Style.marginM
+              spacing: Style.marginM
+
+              Repeater {
+                model: KDEConnect.devices
+                Layout.fillWidth: true
+
+                NButton {
+                  required property var modelData
+                  text: modelData.name
+                  Layout.fillWidth: true
+                  backgroundColor: modelData.id === KDEConnect.mainDeviceId ? Color.mSecondary : Color.mPrimary
+
+                  onClicked: {
+                    KDEConnect.setMainDevice(modelData.id);
+                    deviceSwitcherOpen = false;
+
+                    pluginApi.pluginSettings.mainDeviceId = modelData.id;
+                    pluginApi.saveSettings();
+                  }
+                }
+              }
+
+              Item {
+                Layout.fillHeight: true
+              }
             }
           }
         }

@@ -14,12 +14,10 @@ Singleton {
   property list<var> pendingDevices: []
 
   property var mainDevice: null
+  property string mainDeviceId: ""
 
   onDevicesChanged: {
-    var newMain = devices.length === 0 ? null : devices[0];
-    if (mainDevice !== newMain) {
-      root.mainDevice = newMain;
-    }
+    setMainDevice(root.mainDeviceId)
   }
 
   reloadableId: "kdeconnect"
@@ -36,6 +34,18 @@ Singleton {
   // Refresh the list of devices
   function refreshDevices(): void {
     getDevicesProc.running = true;
+  }
+
+  function setMainDevice(deviceId: string): void {
+    root.mainDeviceId = deviceId;
+
+    let newMain = devices.find((device) => device.id === root.mainDeviceId);
+    if (newMain === undefined)
+      newMain = devices.length === 0 ? null : devices[0];
+
+    if (root.mainDevice !== newMain) {
+      root.mainDevice = newMain;
+    }
   }
 
   // Send a ping to a device
@@ -247,7 +257,9 @@ Singleton {
         root.pendingDevices = root.pendingDevices.concat([loader.deviceData]);
 
         if (root.pendingDevices.length === root.pendingDeviceCount) {
-          root.devices = root.pendingDevices
+          let newDevices = root.pendingDevices
+          newDevices.sort((a, b) => a.name.localeCompare(b.name))
+          root.devices = newDevices
           root.pendingDevices = []
         }
 

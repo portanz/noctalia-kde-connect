@@ -15,6 +15,7 @@
       "signal-strength": "Signal Strength",
       "notifications": "Notifications"
     },
+    "other-devices": "Other Devices",
     "send-file-picker": "Pick file to send to device",
     "send-file": "Send File",
     "find-device": "Find my Device",
