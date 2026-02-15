@@ -8,7 +8,6 @@ Item {
   property var pluginApi: null
 
   onPluginApiChanged: {
-    Logger.i("KDEConnect", "Settings value: ", pluginApi?.pluginSettings?.mainDeviceId)
     KDEConnect.setMainDevice(pluginApi?.pluginSettings?.mainDeviceId || "")
   }
 
