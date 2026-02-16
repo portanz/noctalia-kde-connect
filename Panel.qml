@@ -252,6 +252,10 @@ Item {
 
             RowLayout {
 
+              Item {
+                width: 7
+              }
+
               Rectangle {
                 width: 100
                 color: "transparent"

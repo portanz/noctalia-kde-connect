@@ -1,9 +1,9 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import qs.Commons
 import qs.Widgets
 
-// iPhone-style Phone Display Component
 Rectangle {
   id: phoneRoot
 
@@ -18,11 +18,19 @@ Rectangle {
   readonly property real scaleFactor: Math.min(width / 115, height / 235)
   radius: 20 * scaleFactor
 
-  // iPhone styling - flat edges with slight rounding
-  color: "#1c1c1e" // iPhone frame color
+  color: "#1c1c1e"
+
+  RectangularShadow {
+    anchors.fill: phoneRect
+    radius: phoneRoot.radius
+    blur: 15
+    spread: 1
+  }
 
   // Bezel/frame
   Rectangle {
+    id: phoneRect
+
     anchors {
       fill: parent
       margins: 2 * phoneRoot.scaleFactor
@@ -87,11 +95,5 @@ Rectangle {
         opacity: 0.4
       }
     }
-  }
-
-  // Subtle shadow effect for depth
-  layer.enabled: true
-  layer.effect: ShaderEffect {
-    property color shadowColor: Qt.rgba(0, 0, 0, 0.3)
   }
 }
