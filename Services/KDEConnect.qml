@@ -5,7 +5,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 
-Singleton {
+QtObject {
   id: root
 
   property list<var> devices: []
@@ -19,8 +19,6 @@ Singleton {
   onDevicesChanged: {
     setMainDevice(root.mainDeviceId)
   }
-
-  reloadableId: "kdeconnect"
 
   Component.onCompleted: {
     checkDaemon();
@@ -79,8 +77,7 @@ Singleton {
   }
 
   // Check daemon
-  Process {
-    id: daemonCheckProc
+  property Process daemonCheckProc: Process {
     command: ["qdbus"]
     stdout: StdioCollector {
       onStreamFinished: {
@@ -96,8 +93,7 @@ Singleton {
   }
 
   // Get device list
-  Process {
-    id: getDevicesProc
+  property Process getDevicesProc: Process {
     command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect", "org.kde.kdeconnect.daemon.devices"]
     stdout: StdioCollector {
       onStreamFinished: {
@@ -115,9 +111,7 @@ Singleton {
   }
 
   // Component that loads all info for a single device
-  Component {
-    id: deviceLoaderComponent
-
+  property Component deviceLoaderComponent: Component {
     QtObject {
       id: loader
       property string deviceId: ""
@@ -272,8 +266,7 @@ Singleton {
   }
 
   // Ping component
-  Component {
-    id: pingComponent
+  property Component pingComponent: Component {
     Process {
       id: proc
       property string deviceId: ""
@@ -285,8 +278,7 @@ Singleton {
   }
 
   // FindMyPhone component
-  Component {
-    id: findMyPhoneComponent
+  property Component findMyPhoneComponent: Component {
     Process {
       id: proc
       property string deviceId: ""
@@ -298,8 +290,7 @@ Singleton {
   }
 
   // Request Pairing Component
-  Component {
-    id: requestPairingComponent
+  property Component requestPairingComponent: Component {
     Process {
       id: proc
       property string deviceId: ""
@@ -311,8 +302,7 @@ Singleton {
   }
 
   // Unpairing Component
-  Component {
-    id: unpairingComponent
+  property Component unpairingComponent: Component {
     Process {
       id: proc
       property string deviceId: ""
@@ -327,8 +317,7 @@ Singleton {
   }
 
   // Share file component
-  Component {
-    id: shareComponent
+  property Component shareComponent: Component {
     Process {
       id: proc
       property string deviceId: ""
@@ -343,7 +332,7 @@ Singleton {
   }
 
   // Periodic refresh timer
-  Timer {
+  property Timer refreshTimer: Timer {
     interval: 5000
     running: true
     repeat: true
