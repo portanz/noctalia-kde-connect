@@ -16,6 +16,10 @@ QtObject {
   property var mainDevice: null
   property string mainDeviceId: ""
 
+  property string qdbusCmd: ""
+  readonly property var qdbusOptions: ["qdbus6", "qdbus", "qdbus-qt6"]
+  property int qdbusOptionIndex: 0
+
   onDevicesChanged: {
     setMainDevice(root.mainDeviceId)
   }
@@ -130,11 +134,31 @@ QtObject {
       })
 
       function start() {
-        nameProc.running = true;
+        if (qdbusCmd === "")
+          qdbusDetectProc.running = true;
+        else
+          nameProc.running = true
+      }
+
+      property Process qdbusDetectProc: Process {
+        command: ["which", qdbusOptions[qdbusOptionIndex]]
+        stdout: StdioCollector {
+          onStreamFinished: {
+            let location = text.trim()
+            if (location !== "") {
+              qdbusCmd = location
+              nameProc.running = true
+              Logger.i("KDEConnect", "Found qdbus command:", location)
+            } else if (qdbusOptionIndex < qdbusOptions.length - 1) {
+              qdbusOptionIndex++
+              qdbusDetectProc.running = true
+            }
+          }
+        }
       }
 
       property Process nameProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.name"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.name"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.name = text.trim();
@@ -145,7 +169,7 @@ QtObject {
       }
 
       property Process reachableProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isReachable"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isReachable"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.reachable = text.trim() === "true";
@@ -156,7 +180,7 @@ QtObject {
       }
 
       property Process pairingRequestedProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isPairRequested"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isPairRequested"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.pairRequested = text.trim() === "true";
@@ -167,7 +191,7 @@ QtObject {
       }
 
       property Process verificationKeyProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.verificationKey"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.verificationKey"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.verificationKey = text.trim();
@@ -178,7 +202,7 @@ QtObject {
       }
 
       property Process pairedProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isPaired"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.isPaired"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.paired = text.trim() === "true";
@@ -192,7 +216,7 @@ QtObject {
       }
 
       property Process activeNotificationsProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/notifications", "org.kde.kdeconnect.device.notifications.activeNotifications"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/notifications", "org.kde.kdeconnect.device.notifications.activeNotifications"]
         stdout: StdioCollector {
           onStreamFinished: {
             let ids = text.trim().split("\n")
@@ -204,7 +228,7 @@ QtObject {
       }
 
       property Process cellularNetworkTypeProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/connectivity_report", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.connectivity_report", "cellularNetworkType"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/connectivity_report", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.connectivity_report", "cellularNetworkType"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.cellularNetworkType = text.trim();
@@ -214,7 +238,7 @@ QtObject {
       }
 
       property Process cellularNetworkStrengthProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/connectivity_report", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.connectivity_report", "cellularNetworkStrength"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/connectivity_report", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.connectivity_report", "cellularNetworkStrength"]
         stdout: StdioCollector {
           onStreamFinished: {
             const strength = parseInt(text.trim());
@@ -227,7 +251,7 @@ QtObject {
       }
 
       property Process isChargingProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/battery", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.battery", "isCharging"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/battery", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.battery", "isCharging"]
         stdout: StdioCollector {
           onStreamFinished: {
             loader.deviceData.charging = text.trim() === "true";
@@ -237,7 +261,7 @@ QtObject {
       }
 
       property Process batteryProc: Process {
-        command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/battery", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.battery", "charge"]
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/battery", "org.freedesktop.DBus.Properties.Get", "org.kde.kdeconnect.device.battery", "charge"]
         stdout: StdioCollector {
           onStreamFinished: {
             const charge = parseInt(text.trim());
@@ -270,7 +294,7 @@ QtObject {
     Process {
       id: proc
       property string deviceId: ""
-      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.sendPing"]
+      command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.sendPing"]
       stdout: StdioCollector {
         onStreamFinished: proc.destroy()
       }
@@ -282,7 +306,7 @@ QtObject {
     Process {
       id: proc
       property string deviceId: ""
-      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId + "/findmyphone", "org.kde.kdeconnect.device.findmyphone.ring"]
+      command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId + "/findmyphone", "org.kde.kdeconnect.device.findmyphone.ring"]
       stdout: StdioCollector {
         onStreamFinished: proc.destroy()
       }
@@ -294,7 +318,7 @@ QtObject {
     Process {
       id: proc
       property string deviceId: ""
-      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.requestPairing"]
+      command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.requestPairing"]
       stdout: StdioCollector {
         onStreamFinished: proc.destroy()
       }
@@ -306,7 +330,7 @@ QtObject {
     Process {
       id: proc
       property string deviceId: ""
-      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.unpair"]
+      command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId, "org.kde.kdeconnect.device.unpair"]
       stdout: StdioCollector {
         onStreamFinished: {
           KDEConnect.refreshDevices()
@@ -322,7 +346,7 @@ QtObject {
       id: proc
       property string deviceId: ""
       property string filePath: ""
-      command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId + "/share", "org.kde.kdeconnect.device.share.shareUrl", "file://" + filePath]
+      command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + deviceId + "/share", "org.kde.kdeconnect.device.share.shareUrl", "file://" + filePath]
       stdout: StdioCollector {
         onStreamFinished: {
           proc.destroy()
