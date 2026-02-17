@@ -283,7 +283,7 @@ Item {
                     icon: deviceData.getBatteryIcon(KDEConnect.mainDevice.battery, KDEConnect.mainDevice.charging)
                     pointSize: Style.fontSizeXXXL
                     applyUiScale: true
-                    color: KDEConnect.mainDevice.charging ? Color.mPrimary : Color.mOnSurface
+                    color: Color.mOnSurface
                   }
 
                   ColumnLayout {
@@ -292,7 +292,7 @@ Item {
                     NText {
                       text: pluginApi?.tr("panel.card.battery")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
@@ -321,7 +321,7 @@ Item {
                     NText {
                       text: pluginApi?.tr("panel.card.network")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
@@ -350,7 +350,7 @@ Item {
                     NText {
                       text: pluginApi?.tr("panel.card.signal-strength")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
@@ -370,7 +370,7 @@ Item {
                     icon: "message"
                     pointSize: Style.fontSizeXXL
                     applyUiScale: true
-                    color: Color.mPrimary
+                    color: Color.mOnSurface
                   }
 
                   Item {}
@@ -381,7 +381,7 @@ Item {
                     NText {
                       text: pluginApi?.tr("panel.card.notifications")
                       pointSize: Style.fontSizeS
-                      color: Color.mOnSurfaceVariant
+                      color: Color.mOnSurface
                     }
 
                     NText {
