@@ -257,7 +257,7 @@ Item {
               }
 
               Rectangle {
-                width: 100
+                width: 100 * Style.uiScaleRatio
                 color: "transparent"
                 Layout.fillHeight: true
                 Layout.leftMargin: Style.marginL
