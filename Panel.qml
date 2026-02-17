@@ -367,13 +367,11 @@ Item {
                   spacing: Style.marginM
 
                   NIcon {
-                    icon: "message"
-                    pointSize: Style.fontSizeXXL
+                    icon: "notification"
+                    pointSize: Style.fontSizeXXXL
                     applyUiScale: true
                     color: Color.mOnSurface
                   }
-
-                  Item {}
 
                   ColumnLayout {
                     spacing: 2
