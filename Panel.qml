@@ -253,7 +253,7 @@ Item {
             RowLayout {
 
               Item {
-                width: 7
+                width: 7 * Style.uiScaleRatio
               }
 
               Rectangle {
@@ -287,7 +287,7 @@ Item {
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.battery")
@@ -316,7 +316,7 @@ Item {
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.network")
@@ -345,7 +345,7 @@ Item {
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.signal-strength")
@@ -374,7 +374,7 @@ Item {
                   }
 
                   ColumnLayout {
-                    spacing: 2
+                    spacing: 2 * Style.uiScaleRatio
 
                     NText {
                       text: pluginApi?.tr("panel.card.notifications")
@@ -499,7 +499,7 @@ Item {
 
             NIcon {
               icon: "device-mobile-off"
-              pointSize: 48
+              pointSize: 48 * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
             }
@@ -544,7 +544,7 @@ Item {
 
             NIcon {
               icon: "device-mobile-off"
-              pointSize: 48
+              pointSize: 48 * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
             }
@@ -601,7 +601,7 @@ Item {
 
             NIcon {
               icon: "exclamation-circle"
-              pointSize: 48
+              pointSize: 48 * Style.uiScaleRatio
               color: Color.mOnSurfaceVariant
               Layout.alignment: Qt.AlignHCenter
             }
