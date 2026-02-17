@@ -85,7 +85,7 @@ QtObject {
     stdout: StdioCollector {
       onStreamFinished: {
         let location = text.trim()
-        if (location !== "") {
+        if (location !== "" && qdbusCmd === "") {
           qdbusCmd = location
           daemonCheckProc.running = true
           Logger.i("KDEConnect", "Found qdbus command:", location)
