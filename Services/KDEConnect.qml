@@ -30,7 +30,7 @@ QtObject {
 
   // Check if KDE Connect daemon is available
   function checkDaemon(): void {
-    daemonCheckProc.running = true;
+    qdbusDetectQDbusProc.running = true;
   }
 
   // Refresh the list of devices
@@ -80,9 +80,26 @@ QtObject {
     proc.running = true;
   }
 
+  property Process qdbusDetectQDbusProc: Process {
+    command: ["which", qdbusOptions[qdbusOptionIndex]]
+    stdout: StdioCollector {
+      onStreamFinished: {
+        let location = text.trim()
+        if (location !== "") {
+          qdbusCmd = location
+          daemonCheckProc.running = true
+          Logger.i("KDEConnect", "Found qdbus command:", location)
+        } else if (qdbusOptionIndex < qdbusOptions.length - 1) {
+          qdbusOptionIndex++
+          qdbusDetectQDbusProc.running = true
+        }
+      }
+    }
+  }
+
   // Check daemon
   property Process daemonCheckProc: Process {
-    command: ["qdbus"]
+    command: [qdbusCmd]
     stdout: StdioCollector {
       onStreamFinished: {
         root.daemonAvailable = text.trim().includes("org.kde.kdeconnect")
@@ -98,7 +115,7 @@ QtObject {
 
   // Get device list
   property Process getDevicesProc: Process {
-    command: ["qdbus", "org.kde.kdeconnect", "/modules/kdeconnect", "org.kde.kdeconnect.daemon.devices"]
+    command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect", "org.kde.kdeconnect.daemon.devices"]
     stdout: StdioCollector {
       onStreamFinished: {
         const deviceIds = text.trim().split('\n').filter(id => id.length > 0);
@@ -134,28 +151,9 @@ QtObject {
       })
 
       function start() {
-        if (qdbusCmd === "")
-          qdbusDetectProc.running = true;
-        else
           nameProc.running = true
       }
 
-      property Process qdbusDetectProc: Process {
-        command: ["which", qdbusOptions[qdbusOptionIndex]]
-        stdout: StdioCollector {
-          onStreamFinished: {
-            let location = text.trim()
-            if (location !== "") {
-              qdbusCmd = location
-              nameProc.running = true
-              Logger.i("KDEConnect", "Found qdbus command:", location)
-            } else if (qdbusOptionIndex < qdbusOptions.length - 1) {
-              qdbusOptionIndex++
-              qdbusDetectProc.running = true
-            }
-          }
-        }
-      }
 
       property Process nameProc: Process {
         command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.name"]
