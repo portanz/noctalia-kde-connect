@@ -325,7 +325,7 @@ Item {
                     }
 
                     NText {
-                      text: KDEConnect.mainDevice.cellularNetworkType
+                      text: KDEConnect.mainDevice.cellularNetworkType || pluginApi?.tr("panel.signal.unknown")
                       pointSize: Style.fontSizeL
                       font.weight: Style.fontWeightMedium
                       color: Color.mOnSurface
