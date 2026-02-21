@@ -178,7 +178,7 @@ Item {
                           (KDEConnect.mainDevice !== null &&  KDEConnect.mainDevice.paired)    ? deviceConnectedCard              :
                           (KDEConnect.mainDevice !== null && !KDEConnect.mainDevice.paired)    ? noDevicePairedCard               :
                           (KDEConnect.devices.length === 0)                                    ? noDevicesAvailableCard           :
-                          ""
+                          null
       }
 
       Component {
@@ -723,7 +723,7 @@ Item {
                   required property var modelData
                   text: modelData.name
                   Layout.fillWidth: true
-                  backgroundColor: modelData.id === KDEConnect.mainDeviceId ? Color.mSecondary : Color.mPrimary
+                  backgroundColor: modelData.id === KDEConnect.mainDevice.id ? Color.mSecondary : Color.mPrimary
 
                   onClicked: {
                     KDEConnect.setMainDevice(modelData.id);

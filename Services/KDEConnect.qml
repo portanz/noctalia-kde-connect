@@ -40,10 +40,22 @@ QtObject {
 
   function setMainDevice(deviceId: string): void {
     root.mainDeviceId = deviceId;
+    updateMainDevice(false);
+  }
 
-    let newMain = devices.find((device) => device.id === root.mainDeviceId);
-    if (newMain === undefined)
-      newMain = devices.length === 0 ? null : devices[0];
+  function updateMainDevice(checkReachable) {
+    let newMain;
+    if (checkReachable) {
+      newMain = devices.find((device) => device.id === root.mainDeviceId && device.reachable);
+      if (newMain === undefined)
+        newMain = devices.find((device) => device.reachable);
+      if (newMain === undefined)
+        newMain = devices.length === 0 ? null : devices[0];
+    } else {
+      newMain = devices.find((device) => device.id === root.mainDeviceId);
+      if (newMain === undefined)
+        newMain = devices.length === 0 ? null : devices[0];
+    }
 
     if (root.mainDevice !== newMain) {
       root.mainDevice = newMain;
@@ -156,9 +168,17 @@ QtObject {
       })
 
       function start() {
-          nameProc.running = true
+        forceOnNetworkChange.running = true
       }
 
+      property Process forceOnNetworkChange: Process {
+        command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect", "org.kde.kdeconnect.daemon.forceOnNetworkChange"]
+        stdout: StdioCollector {
+          onStreamFinished: {
+            nameProc.running = true;
+          }
+        }
+      }
 
       property Process nameProc: Process {
         command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId, "org.kde.kdeconnect.device.name"]
@@ -222,8 +242,10 @@ QtObject {
         command: [qdbusCmd, "org.kde.kdeconnect", "/modules/kdeconnect/devices/" + loader.deviceId + "/notifications", "org.kde.kdeconnect.device.notifications.activeNotifications"]
         stdout: StdioCollector {
           onStreamFinished: {
-            let ids = text.trim().split("\n")
-            loader.deviceData.notificationIds = ids.length === 1 && ids[0] === "" ? [] : ids
+            if (!text.trim().startsWith("Error:")) {
+              let ids = text.trim().split("\n")
+              loader.deviceData.notificationIds = ids.length === 1 && ids[0] === "" ? [] : ids
+            }
 
             cellularNetworkTypeProc.running = true;
           }
@@ -283,8 +305,24 @@ QtObject {
         if (root.pendingDevices.length === root.pendingDeviceCount) {
           let newDevices = root.pendingDevices
           newDevices.sort((a, b) => a.name.localeCompare(b.name))
+
+          let prevMainDevice = root.devices.find((device) => device.id === root.mainDeviceId);
+          let newMainDevice = newDevices.find((device) => device.id === root.mainDeviceId);
+
+          let deviceNotReachableAnymore =
+            prevMainDevice === undefined ||
+            (
+              (prevMainDevice?.reachable ?? false) &&
+              !(newMainDevice?.reachable ?? false)
+            ) ||
+            (
+              (prevMainDevice?.paired ?? false) &&
+              !(newMainDevice?.paired ?? false)
+            )
+
           root.devices = newDevices
           root.pendingDevices = []
+          updateMainDevice(deviceNotReachableAnymore);
         }
 
         loader.destroy();
