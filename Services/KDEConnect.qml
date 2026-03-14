@@ -88,13 +88,14 @@ QtObject {
     proc.running = true;
   }
 
-  function busctlCall(obj, itf, method, param = null) {
+  function wakeUpDevice(deviceId: string): void {
+    const proc = wakeUpDeviceComponent.createObject(root, { deviceId: deviceId });
+    proc.running = true;
+  }
+
+  function busctlCall(obj, itf, method, params = []) {
     let result = [ root.busctlCmd, "--user", "call", "--json=short", "org.kde.kdeconnect", obj, itf, method ];
-
-    if (param != null)
-      result.push(param);
-
-    return result;
+    return result.concat(params);
   }
 
   function busctlGet(obj, itf, prop) {
@@ -393,13 +394,28 @@ QtObject {
     }
   }
 
+  // Wake up Device Component
+  property Component wakeUpDeviceComponent: Component {
+    Process {
+      id: proc
+      property string deviceId: ""
+      command: busctlCall("/modules/kdeconnect/devices/" + deviceId + "/remotecontrol", "org.kde.kdeconnect.device.remotecontrol", "sendCommand", [ "a{sv}", "1", "singleclick", "b", "true" ])
+      stdout: StdioCollector {
+        onStreamFinished: {
+          KDEConnect.refreshDevices()
+          proc.destroy()
+        }
+      }
+    }
+  }
+
   // Share file component
   property Component shareComponent: Component {
     Process {
       id: proc
       property string deviceId: ""
       property string filePath: ""
-      command: busctlCall("/modules/kdeconnect/devices/" + deviceId + "/share", "org.kde.kdeconnect.device.share", "shareUrl", "file://" + filePath)
+      command: busctlCall("/modules/kdeconnect/devices/" + deviceId + "/share", "org.kde.kdeconnect.device.share", "shareUrl", [ "file://" + filePath ])
       stdout: StdioCollector {
         onStreamFinished: {
           proc.destroy()

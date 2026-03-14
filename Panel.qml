@@ -281,6 +281,8 @@ Item {
                 PhoneDisplay {
                   Layout.alignment: Qt.AlignCenter
                   backgroundImage: ""
+
+                  onClicked: KDEConnect.wakeUpDevice(KDEConnect.mainDevice.id)
                 }
               }
 
