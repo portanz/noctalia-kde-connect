@@ -366,11 +366,26 @@ QtObject {
   // SFTP Browse component
   property Component browseFilesComponent: Component {
     Process {
-      id: proc
+      id: mountProc
       property string deviceId: ""
-      command: busctlCall("/modules/kdeconnect/devices/" + deviceId + "/sftp", "org.kde.kdeconnect.device.sftp", "startBrowsing")
+      command: busctlCall("/modules/kdeconnect/devices/" + deviceId + "/sftp", "org.kde.kdeconnect.device.sftp", "mountAndWait")
       stdout: StdioCollector {
-        onStreamFinished: proc.destroy()
+        onStreamFinished: rootDirProc.running = true
+      }
+
+      property Process rootDirProc: Process {
+        command: busctlCall("/modules/kdeconnect/devices/" + mountProc.deviceId + "/sftp", "org.kde.kdeconnect.device.sftp", "getDirectories")
+        stdout: StdioCollector {
+          onStreamFinished: {
+            const dirs = busctlData(text);
+            const path = Object.keys(dirs[0])[0];
+            if (!Qt.openUrlExternally("file://" + path)) {
+              Logger.e("KDEConnect", "Failed to open file manager for path:", path);
+            }
+
+            mountProc.destroy();
+          }
+        }
       }
     }
   }
